@@ -1,0 +1,30 @@
+!pip install transformers
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+import torch
+import re
+model_name = "gpt2"
+tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+model = GPT2LMHeadModel.from_pretrained(model_name)
+tokenizer.pad_token = tokenizer.eos_token
+prompt = 'Prompt: "Once upon a time, there lived a lion in the forest. And it is a greedy one. One is the good one to manage and rule the forest." \nStory:'
+inputs = tokenizer.encode(prompt, return_tensors="pt")
+output = model.generate(
+    inputs,
+    max_length=600,             # Allows for longer paragraph generation
+    temperature=0.9,
+    top_k=50,
+    top_p=0.95,
+    num_return_sequences=1,
+    no_repeat_ngram_size=2,
+    pad_token_id=tokenizer.eos_token_id
+)
+generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+# Remove "Story:" and any unwanted tags like "Director:"
+story_raw = generated_text.split("Story:")[-1]
+story_clean = re.sub(r"Director:.*", "", story_raw).strip(
+
+# Format into paragraphs
+paragraphs = story_clean.split('. ')
+formatted_story = "\n\n".join(["".join(p.strip()) + '.' for p in paragraphs if p][:5])
+
+print(formatted_story)
