@@ -10,7 +10,7 @@ prompt = 'Prompt: "Once upon a time, there lived a lion in the forest. And it is
 inputs = tokenizer.encode(prompt, return_tensors="pt")
 output = model.generate(
     inputs,
-    max_length=600,             # Allows for longer paragraph generation
+    max_length=600,             
     temperature=0.9,
     top_k=50,
     top_p=0.95,
@@ -19,11 +19,8 @@ output = model.generate(
     pad_token_id=tokenizer.eos_token_id
 )
 generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
-# Remove "Story:" and any unwanted tags like "Director:"
 story_raw = generated_text.split("Story:")[-1]
 story_clean = re.sub(r"Director:.*", "", story_raw).strip(
-
-# Format into paragraphs
 paragraphs = story_clean.split('. ')
 formatted_story = "\n\n".join(["".join(p.strip()) + '.' for p in paragraphs if p][:5])
 
